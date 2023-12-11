@@ -7,69 +7,65 @@ const ToDoModel = require("../models/ToDoModel");
 function getToDo(req, res){
     ToDoModel
     .find() // Method to find.
-    .then(todo => res.send(todo))
-    .catch(error => {
-        console.log(error);
-        res.status(500).send('Server Error !!!');
-    });
+        .then((todo) => {
+            res.status(200).send(todo);
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).send('Server Error !!!', error);
+        });
 }
-
-// Logic for Saving the Data.
-function saveToDo(req, res){
-    const {text} = req.body;
+// Logic for Adding the Data.
+function addToDo(req, res){
+    const { task } = req.body;
     ToDoModel
-    .create({text}) 
-    .then((data) => {
-        console.log("Added Successfully ...");
-        console.log(data);
-        res.send(data);
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send("Server Error !!!");
-    });
+        .create({task})
+            .then((data) => {
+                console.log("Added Successfully ...");
+                console.log(data);
+                res.send(data);
+            })
+            .catch((error) => {
+                console.log(error);
+                res.status(500).send("Server Error !!!");
+            });
 }
-
-// Logic for Updating the Data.
-function updateToDo(req, res){
-    const {_id, text} = req.body;
-    ToDoModel
-    .findByIdAndUpdate(_id, {text})
-    .then(() => {
-        res.set(201).send("Updated Successfully ...");
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send("Server Error !!!");
-    });
-}
-
 // Logic for Deleting the Data.
+function updateToDo(req, res) {
+    const { taskId } = req.params;
+    const updatedTask = req.body;
+    ToDoModel.findByIdAndUpdate(taskId, updatedTask, { new: true })
+        .then((updatedToDo) => {
+            if (!updatedToDo) {
+                return res.status(404).send({ Error: "Task Not Found !!!" });
+            } else {
+                res.status(201).send("Updated Successfully ...");
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send("Server Error !!!", error);
+        });
+}
+
 function deleteToDo(req, res){
-    const { _id } = req.body;
-    console.log(`id ----> ${_id}`);
+    const { taskId } = req.params;
+    console.log(`id ----> ${taskId}`);
     ToDoModel
-    .findByIdAndDelete(_id)
-    .then(() => {
-        res.set(201).send("Deleted Successfully ...")
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send("Server Error !!!");
-    });
+        .findByIdAndDelete(taskId)
+            .then(() => {
+                res.set(200).send("Deleted Successfully ...")
+            })
+            .catch((error) => {
+                console.log(error);
+                res.status(500).send("Server Error !!!");
+            });
 }
 
 // Exporting getToDo, saveToDo, deleteToDo, updateToDo.
 module.exports = {
     getToDo,
-    saveToDo,
+    addToDo,
     updateToDo,
     deleteToDo
 }
-
-
-
-
-
-
-
